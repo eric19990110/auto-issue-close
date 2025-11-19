@@ -1,0 +1,26 @@
+name: Close Labeled Issues
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  close-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if issue should be closed
+        if: github.event.label.name == 'completed' || github.event.label.name == 'wontfix'
+        run: |
+          echo "Closing issue #${{ github.event.issue.number }} with label '${{ github.event.label.name }}'"
+          
+      - name: Close issue
+        if: github.event.label.name == 'completed' || github.event.label.name == 'wontfix'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            })
